@@ -1,4 +1,18 @@
 require("dotenv").config();
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000; // <- důležité pro Render
+
+// Web server, aby Render neuspával aplikaci
+app.get('/', (req, res) => {
+  res.send('Bot je aktivní ✅');
+});
+
+app.listen(PORT, () => {
+  console.log(`🌐 Web server běží na portu ${PORT}`);
+});
+
+// Discord část
 const {
   Client,
   GatewayIntentBits,
@@ -46,7 +60,6 @@ async function createCityEmbed(guild) {
   return embed;
 }
 
-// === ODESLÁNÍ EMBEDU PŘÍKAZEM !city ===
 client.on(Events.MessageCreate, async message => {
   if (message.author.bot) return;
   if (message.content === "!city") {
@@ -77,7 +90,6 @@ client.on(Events.MessageCreate, async message => {
   }
 });
 
-// === ZPRACOVÁNÍ TLAČÍTEK A AKTUALIZACE EMBEDU ===
 client.on(Events.InteractionCreate, async interaction => {
   if (!interaction.isButton()) return;
 
@@ -102,7 +114,6 @@ client.on(Events.InteractionCreate, async interaction => {
     await member.roles.remove(roleOn).catch(console.error);
   }
 
-  // Vytvořit nový embed a aktualizovat
   const updatedEmbed = await createCityEmbed(interaction.guild);
 
   const buttonOn = new ButtonBuilder()
@@ -122,5 +133,5 @@ client.on(Events.InteractionCreate, async interaction => {
     components: [row]
   });
 });
-  
+
 client.login(process.env.TOKEN);
